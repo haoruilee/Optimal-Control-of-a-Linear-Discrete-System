@@ -189,7 +189,7 @@
     \@keywords\par
   }
 \fi
-\newcommand{\headset}{{\the\year}\\Operational Research\\Research Report}
+\newcommand{\headset}{{\the\year}\\Operational Research\\Report}
 \newcommand{\problem}[1]{\mcmsetup{problem = #1}}
 \def\makesheet{%
   \pagestyle{empty}%

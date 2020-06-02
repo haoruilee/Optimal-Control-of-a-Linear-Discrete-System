@@ -10,7 +10,20 @@
 %===============设置正文和数学字体=============================
 %有些字体需要安装一些字体文件，注意辨别。
 %我参照 MCM论文集的字体 使用如下宏包来定制字体。
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%lhr的包
+\usepackage{graphicx}
+%\graphicspath{ {./images/} }
+\usepackage{float} 
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{booktabs} %三线表需要加载宏包{booktabs}
+\usepackage{diagbox}
+\usepackage{multirow}
+\usepackage{listings}
+\usepackage{xcolor}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \usepackage{graphicx}
 \usepackage{subfigure}
 %设置段落之间的距离，若不需要删除或者注释掉即可。
@@ -154,7 +167,7 @@ $Notes$ : Now the weight of every step is 1
 The problem can be rewriten as:
 \begin{align}
 min & \text{ } J=\frac{1}{2}\sum^{T-1}_{k=0}u^T(k)u(k)\\
-S.t. \text{ }& x(k+1)=A x(k)+B u(k)\\ &  k < T\\& k \in Z^+    
+S.t. \text{ }& x(k+1)=A x(k)+B u(k)\\ &  k < T\\& k \in Z^+ \\&x(0)=x_0\\&x(T)∈  [A,B]
 \end{align}
 
 By Lagrange undetermined multiplier method we can get:
@@ -203,61 +216,79 @@ Thus:
 
 \section{Problem Two: Solve the problem using MATLAB tool}
 
-The demand distribution defines the number of people arriving at the station nodes during the evacuation process. The demand distribution depends on the potential population of the evacuation area depending on the transport system. This demand not only has spatial dependence, but also has time dependence. To determine how many evacuees will arrive at each station node, we need to define a service area to determine its appeal scope. One way to do this is to use the concept of the Thiessen Polygon \cite{Bretschneider2011A}. The Thiessen Polygon is centered around the station node and the nearest family is located in the same service area. By dividing the network into a number of adjacent polygons, families are assigned to the Thiessen Polygon where their nearest assembly point is located.
-
-In the study, we determined the potential demand by using the Thiessen Polygon to determine the service area of the station node. Due to the evacuees in the evacuation process, the demand of the station nodes is uncertain, mainly manifested in the following two situations:
+We search different MATLAB tools and finally tried the following two methods:
 
 \begin{itemize}
 
-\item Those who have been registered to evacuate will change their minds and evacuate by private cars or other means, reducing the need for evacuation;
-\item Personnel who have not been registered prepare to evacuate, including tourists or travel agents, and increase evacuation demand.
+\item QLDR Function
+\item Dynamic Programming 
 
 \end{itemize}
 
-The demand distribution in this paper is based on the pre-population survey data covered by the station node, assuming that it is subject to uniform distribution. For example, if the number of evacuees covered by the survey is 40, then U [30, 50], and the demand will be gradually generated according to the Mobilization Curve.
-For station nodes, assuming that they have a certain storage capacity, the evacuees can wait for a while before they evacuate. Emergency evacuation in practice, can under the circumstances of road network, through the whole evacuation phases to define the generated during evacuation demands, in order to make every vehicle evacuation route.
+We study thier theories and check their outputs, and the results are as following.
+\subsection{QLDR Function}
 
-Goerigk proposed the mobilization curve \cite{Goerigk2014A,Goerigk2013Branch}, also known as the S type curve, used to estimate demand in different time evacuees percentage. In the event of natural disasters, the cumulative percentage of evacuation demand can be calculated by the time-varying curve function. The time-varying curve is expressed as follows:
+The linear quadratic regulator (LQR) is a well-known design technique that provides practical feedback gains.
+
+In the case of the Linear Quadratic Regulator (with zero terminal cost), we can get:
+
+$$L=\frac{1}{2} x^{T} Q x+\frac{1}{2} u^{T} R u$$
+
+where the requirement that L > 0 implies that both Q and R are positive definite. In the
+case of linear plant dynamics also, we have
 
 
-\begin{equation}\label{1}
-C(t) = \frac{1}{{(1 + {e^{ - \alpha (t - h)}})}}
-\end{equation}
+$$\begin{aligned}
+L_{x} &=x^{T} Q \\
+L_{u} &=u^{T} R \\
+f_{x} &=A \\
+f_{u} &=B
+\end{aligned}$$
 
-\begin{equation}\label{2}
-C(0) = 0
-\end{equation}
+So we have:
 
-Where:
+$$\begin{aligned}
+\dot{x} &=A x+B u \\
+x\left(t_{o}\right) &=x_{o} \\
+\dot{\lambda}&=-Q x-A^{T} \lambda & \\
+\lambda\left(t_{f}\right) &=0 \\
+R u+B^{T} \lambda &=0
+\end{aligned}$$
 
-$C(t)$ is the cumulative percentage of withdrawal demands from time to time;
+Since the systems are clearly linear, we try a connection λ = Px. Inserting this into the η˙
+equation, and then using the $\dot{x}$˙ equation, and a substitution for u, we obtain:
 
-$a$ is the loading rate or the reaction rate of the public to the evacuation instructions, also expressed as the slope of the time curve;
+$$P A x+A^{T} P x+Q x-P B R^{-1} B^{T} P x+\dot{P}=0$$
 
-$h$ is the time required for half of the demand in the system;
+This has to hold for all x, so in fact it is a matrix equation, the matrix Riccati equation.
+The steady-state solution is given satisfies:
+$$P A+A^{T} P+Q-P B R^{-1} B^{T} P=0$$
 
-$t$=0 represents the time the evacuation order is released.
+This equation is the matrix algebraic Riccati equation (MARE), whose solution P is needed
+to compute the optimal feedback gain K. The MARE is easily solved by standard numerical
+tools in linear algebra.
+The equation $Ru + B^T \lambda$ = 0 gives the feedback law:
 
-The individual loading time is the time when they arrive at the station node. $h$ can be determined according to the peak value of the departure time of the traffic or half of the estimated allowable evacuation time. Choose half the load time as an input parameter for the system. If time varying curve is used to calculate the cumulative percentage of the traffic demand is loaded into the road network, then according to the nature of the disaster, we can use different half load time to impact load parameter. therefore, in the process of evacuation, the choice of half load time is crucial~\cite{Sayyady2010Optimizing,So2010Managing}.
+$$u = −R^{−1}B^{T}Px$$
 
-Loading time usually includes departure time and time required to reach the station node. Departure time refers to the time each person spends preparing for withdrawal once the evacuation order is released. Through this definition, we can know that the loading time varies based on the type of events, the relative severity of events, the communication efficiency of the public and the involvement of emergency management centres.
+The LQR generates a static gain matrix K, which is not a dynamical system.
+Hence, the order of the closed-loop system is the same as that of the plant.
 
-In the study of this paper, we do not cover the departure time, but only the time that needs to reach the station node.
+\subsection{Use LQR in MATLAB}
 
-By introducing different loading rates during the implementation phase of the evacuation plan, the withdrawal situation will change.
-
-In the case of low loading rates usually, more people are responding to instructions in the early stages of evacuation, while the high loading rate, a large number of evacuees spend a lot of time preparing for the evacuation.
-
-In the case of low loading rate, people gradually reach the station node within the time range of evacuation, but for the high loading rate, a large number of people rush to the station node during the final phase of evacuation,as is shown in Figure ~\ref{fig:2}.
-
-\begin{figure}[htbp]
+We find that, along with LQR, there is DLQR Function in MATLAB, which is designed for "Linear-quadratic (LQ) state-feedback regulator for discrete-time state-space system" 
+\begin{figure}[H]%H为当前位置，!htb为忽略美学标准，htbp为浮动图形
   \centering
- 
-  \includegraphics[width=0.7\textwidth]{./picture/figure2.eps}
-  \caption{Behavioral Response Curves}\label{fig:2}
- \end{figure}
+  \caption{Description in MATLAB}
+%可选参数中width=\columnwidth选取了当前列宽
+  \includegraphics[width=\columnwidth]{Optimal Control of a Linear Discrete System/MCM20200128/picture/DLQR.png} %插入图片，[]中设置图片大小，{}中是图片文件名
+  \label{Fig.RNN} %用于文内引用的标签
+\end{figure}
 
-In the case of a hurricane, the initial phase of withdrawal is usually slow, and the demand for station nodes is not greater than the capacity of the vehicle. But in the final phase of the evacuation, the demand may be concentrated, and the cumulative result is that the demand for a station node is greater than the capacity of the vehicle. At this moment, we need  to send vehicles from another station node to meet their needs, carrying away for the rest. With the demand of the other station node considering again, a reasonable, optimizing transportation route can be arranged.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \section{The Comprehensive Evacuation Planning Model}
 \subsection{Model Preparation}
