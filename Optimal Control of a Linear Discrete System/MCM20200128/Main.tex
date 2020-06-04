@@ -285,6 +285,31 @@ We find that, along with LQR, there is DLQR Function in MATLAB, which is designe
   \label{Fig.RNN} %用于文内引用的标签
 \end{figure}
 
+\subsection{Dynamic Programming}
+The final general characteristic of the dynamic-programming approach is the development of a recursive optimization procedure, which builds to a solution of the overall N-stage problem by first solving a one-stage problem and sequentially including one stage at a time and solving one-stage problems until the overall optimum has been found. This procedure can be based on a backward induction process, where the first stage to be analyzed is the final stage of the problem and problems are solved moving back one stage at a time until all stages are included. Alternatively, the recursive procedure can be based on a forward induction process, where the first stage to be solved is the initial stage of the problem and problems are solved moving forward
+one stage at a time, until all stages are included. In certain problem settings, only one of these induction processes can be applied (e.g., only backward induction is allowed in most problems involving uncertainties).
+
+The basis of the recursive optimization procedure is the so-called principle of optimality, which has already been stated: an optimal policy has the property that, whatever the current state and decision, the remaining decisions must constitute an optimal policy with regard to the state resulting from the current decision.
+
+Suppose we have a multistage decision process where the return (or cost) for a particular stage is:
+
+$$f_n(d_n,s_n)$$
+
+where dn is a permissible decision that may be chosen from the set Dn, and sn is the state of the process with n stages to go.
+
+Noramlly, we have to solve the following problem:
+
+\[
+v_{n}\left(s_{n}\right)=\operatorname{Max}\left[f_{n}\left(d_{n}, s_{n}\right)+f_{n-1}\left(d_{n-1}, s_{n-1}\right)+\cdots+f_{0}\left(d_{0}, s_{0}\right)\right]
+\]
+subject to:
+\[
+\begin{array}{ll}
+s_{m-1}=t_{m}\left(d_{m}, s_{m}\right) & (m=1,2, \ldots, n) \\
+d_{m} \in D_{m} & (m=0,1, \ldots, n)
+\end{array}
+\]
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%
