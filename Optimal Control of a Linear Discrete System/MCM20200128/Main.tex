@@ -70,6 +70,7 @@ In the real world, many real systems are time-discrete in nature.Even if the sys
 First of all, We build up the mathematical programming model of the optimal control problem from the conditions of the dynamic equation.
 %通过Lagrange乘子法将等式约束下的极值问题化为无约束的极值问题，使用离散的欧拉方程进行限制，到达下确界。迭代法求出X(T)和C的关系。并使用X(T)的范围求出C的范围。再在C的取值范围中，求得最优解。
 For the problem(2), first,  using the Lagrange undetermined multiplier method change the extremum problems with equality constraints(ECEP) into an unconstrained extremum problem(EP). Second, using discrete Euler-Equations to restrict variables and reach the lower bound. Third, using iteration method to get the relationship of $X(T)$ and C, then figure out their  ranges. Finally, searching in the value range of C to get the optimum point.%%%%%%%%%%%%MATLAB!!!!%%%%%%%
+
 %UNCHANGED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 
@@ -213,7 +214,7 @@ Thus:
 & x(k+1)=A^{k+1} x(0)-\sum_{i=0}^{k} A^{k-i} B B^{T}\left(A^{T}\right)^{-i} C
 \end{align}
 
-
+Now we build up the optimal function and get the equitation of x(k).
 \section{Problem Two: Solve the problem using MATLAB tool}
 
 We search different MATLAB tools and finally tried the following two methods:
@@ -309,6 +310,108 @@ s_{m-1}=t_{m}\left(d_{m}, s_{m}\right) & (m=1,2, \ldots, n) \\
 d_{m} \in D_{m} & (m=0,1, \ldots, n)
 \end{array}
 \]
+
+The generally cost-to-go function is:
+$$J(f, x(t))=\min _{u(t) \in U}\left\{h(x(\tau))+\int_{t}^{T} g(x(\tau) \cdot u(\tau)) d \tau\right\}$$
+\subsubsection{HJB function}:
+
+And for this problem:
+$$\begin{array}{l}
+\left.\min x^{\top}(\tau) Q_{\tau} x(\tau)+\int_{0}^{\top}[x^T(\tau) Q x(\tau)+{u^T}(\tau) \operatorname{R u(\tau)}\right] d t \\
+s .t. \quad {x}(t)=A x(t)+B a(t)
+\end{array}$$
+
+Define this problem's HJB function:
+$$O=\min _{u(t) \in U} \left\{x^{\top} Q x+u^{\top} R u+x^{\top} k(t) x+2 x^{\top} k(t) 4 x+2 x^{\top} k(t) | 3 a\right\}$$
+
+Derivative  it by u and let differential coefficient equals to zero:
+$$2 R u+2 B^{T} k(t) x=0$$
+
+Bring it back to HJB function:
+
+$$O=x^{\top}(\left\{k(t)+k(t) A+A^Tk(t)-k(t) B R^{-1} B^{\top}k(t)\}\right )x$$
+
+So we get Ricati Eqaution.
+
+\subsubsection{Use HJB to solve this problem}
+
+Define the weight matrix D：
+
+$$D=diag(d_1,d_2...d_n)$$
+
+With the restruct of u (because in the real world we don't have unlimited power to control)
+$$g(u)=a u+b \leqslant 0$$
+$Notes$: This function is the general condition for:
+$$u_{min} \leqslant u \leqslant u_{max}$$
+
+And for di:
+$$\mathrm{d} i=\left\{\begin{array}{ll}
+>0 & \mathrm{g}_{\mathrm{i}}(\mathrm{u})>0 \\
+0 & \mathrm{g}_{\mathrm{i}}(\mathrm{u}) \leqslant 0
+\end{array}\right.$$
+
+So we expand the cost function:
+$$\tilde{J}=\frac{1}{2} x^{T}\left(t_{0}\right) F_{x}\left(t_{0}\right)+-\frac{1}{2}-\int_{t}^{t}(  x^T Q(t)x+u^T R(t)u +g^T(u)Dg(u) )$$
+
+For $\tilde{J}$, introduce the HJB funtion:
+
+$$\begin{array}{l}
+\widetilde{H}=-\frac{1}{2}-\mathrm{X}^{\mathrm{T}}\left(2(\mathrm{t}) \mathrm{x}+\frac{1}{2} \mathrm{u}^{\mathrm{T}} \mathrm{R}(t) \mathrm{u}+\right. \\
+-\frac{1}{2} \mathrm{g}^{\mathrm{T}}(\mathrm{u}) \mathrm{Dg}(\mathrm{u})+\lambda^{\mathrm{T}} \mathrm{A}(\mathrm{x}) \mathrm{x}+\lambda^{\mathrm{T}} \mathrm{B}(\mathrm{t}) \mathrm{u}
+\end{array}$$
+where $\lambda$ is Lagrange multiplier.
+
+Using maximum principle we can get $u^{*}(t)$:
+$$u^{*}=-\tilde{R}^{-1}(t)\left[B^{T}(t) \lambda+\tilde{b}\right]$$
+where:
+$$\begin{array}{c}
+\widetilde{R}(t)=R(L)+a^{\prime} D a>0 \\
+\widetilde{b}=a^{\prime} D b
+\end{array}$$
+
+%%%此处很多没看懂，已高亮
+$$\begin{array}{c}
+\dot{x}=A(t) x-B(t) \widetilde{R}^{-1}(t) B^T(t) \lambda 
+-B(t) \widetilde{R}^{-1}(t) \widetilde{b}
+\end{array} $$
+Suppose:
+$$\lambda=P(t) x+P_0(t)$$
+Here:
+$$P \in R^{n \times n},  P_{0} \in R^{n \times 1}$$
+Put it in to $\lambda$ can get:
+$$\dot{\lambda}=\dot{P}(t) x+P(t) \dot{x}+\dot{P}_{0}(t)$$
+
+Finally we get:
+\begin{align}\dot{\lambda}=[\dot{\mathrm{P}}(\mathrm{t})+\mathrm{P}(\mathrm{t}) \mathrm{A}(\mathrm{t})-\mathrm{P}(\mathrm{t}) \mathrm{B}(\mathrm{t}) 
+\left.\widetilde{\mathrm{R}^{-1}}(\mathrm{t}) \mathrm{PB}^{\mathrm{T}}(\mathrm{t})(\mathrm{t})\right] \mathrm{x}-\\P(\mathrm{t}) \mathrm{B}(\mathrm{t})
+\widetilde{\mathrm{R}}^{-1} 
+(\mathrm{t}) \mathrm{B}^{\mathrm{r}}(\mathrm{t}) \mathrm{P}_{\mathrm{o}}(\mathrm{t})-\mathrm{P}(1) \mathrm{B}(\mathrm{t}) \mathrm{R}^{-1} 
+(\mathrm{t}) \tilde{\mathrm{b}}+\dot{\mathrm{P}}_{\mathrm{o}}(\mathrm{t})
+\end{align}
+
+We also have:
+\begin{align}
+\dot{\lambda}=&-\left[\mathrm{Q}(\mathrm{t})+\mathrm{A}^{\mathrm{T}}(\mathrm{t}) \mathrm{P}(\mathrm{t})\right] \mathrm{x} 
+-\mathrm{A}^{\mathrm{T}}(\mathrm{t}) P_0^T(\mathrm{t})
+\end{align}
+
+Compare (13-14) and (15) we can get:
+
+\begin{align}
+\dot{\mathrm{P}}(\mathrm{t})=&-\mathrm{A}^{T}(\mathrm{t}) \mathrm{P}(\mathrm{t})-\mathrm{P}(\mathrm{t}) \mathrm{A}(\mathrm{t})+\mathrm{P}(\mathrm{t}) \mathrm{B}(\mathrm{t}) \widetilde{\mathrm{R}}^{-1}(\mathrm{t}) \mathrm{B}^{\mathrm{T}}(\mathrm{t})  \mathrm{P}(\mathrm{t})-\mathrm{Q}(t)
+\end{align}
+
+And
+
+\begin{align}
+\dot{P}_{o}(t)=&-G^{T}(t) P_{0}(t)+P(t) B(t) \widetilde{\mathrm{R}}^{-1}(t) \vec{b} 
+\end{align}
+where： $G(t)=A(t)-B(t) \widetilde{\mathrm{R}}^{-1}(t) B^{T}(t) P^T(t)$
+
+Due to $\widetilde{\mathrm{R}},\widetilde{\mathrm{P}}$ are symmetric matrix:
+
+$$G^T(t)=A^{T}(t)-P(1) B(t) \widetilde{R}^{-1}(1) B^{T}(t)$$
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
