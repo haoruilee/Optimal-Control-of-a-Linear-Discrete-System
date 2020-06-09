@@ -538,7 +538,27 @@ Unfortunately, we have no time left to program this method, but we think it work
 \section{Problem Three: Change A and analyze its impact}
 According to the gain K that we have calculated earlier, we inferred that the increase of A may lead to the raise of control series. After making trail of this method, we obtained the following experiment results which gave a visual representation of our inference.\cite{MatthewGSmith:2005:GPEM}\cite{conf/smc/NetoFR13}
 
-You can find our code for interior point method in Appendix.
+Our code for interior point method is:
+
+\begin{lstlisting}[language=MATLAB, caption=Function for interior point method]
+function y = fitness(u)
+[rows,cols]=size(u);
+x= [0.05; 0.08; 0]
+A=[100 0 0;0 100 0;0 0 100];
+B=[2;1;1];
+sum=0;
+L = 2
+for k=1:1:cols
+    x=A*x+B*u(k);
+end
+for k=2:1:cols
+    sum=sum+u(k) * u(k);
+end
+y= sum + L * (x'*x);
+end
+\end{lstlisting}
+
+Which defines the function for optimizer. And we will change A for experiment.
 
 %%制作3*3子图
 \begin{figure}[H]
@@ -621,7 +641,7 @@ From the screenshots, we can see that the value of controls indeed increased wit
 
 \begin{figure}[H]%H为当前位置，!htb为忽略美学标准，htbp为浮动图形
   \centering
-  \caption{System in Simulink}
+  \caption{Steps of u}
 %可选参数中width=\columnwidth选取了当前列宽
   \includegraphics[width=50ex]{Optimal Control of a Linear Discrete System/MCM20200128/picture/changeA/表格.png} %插入图片，[]中设置图片大小，{}中是图片文件名
   \label{Fig.RNN} %用于文内引用的标签
