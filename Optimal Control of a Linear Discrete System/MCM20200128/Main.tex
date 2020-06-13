@@ -123,10 +123,12 @@
 
 In the real world, many real systems are time-discrete in nature.Even if the system is time-continuous, because the computer is based on such discrete digital technology as time and value, the implementation of computer control must be treated as a discrete system after time discrimination.Therefore, it is necessary to discuss the optimal control of discrete time systems.
 
-To build up the optimal problem, first, we define the objective function in chapter-3 which stands for summation of the magnitude square of controls over the entire time horizon.And we want to constrain the x(T) to fall in the predetermined interval, so a penalty function is defined in chapter-4. If the L increases which means the final state x(T) will have a greater impact on the objective function, therefore x(T) would have a much stricter constrains and this would cause the decrease of the final state value. Vice versa, if the L reduces, the value of x(T) would be larger
+To build up the optimal problem, first, we define the objective function in chapter-3 which stands for summation of the magnitude square of controls over the entire time horizon.And we want to constrain the x(T) to fall in the predetermined interval, so a penalty function is further explained in chapter-4. If the L increases which means the final state x(T) will have a greater impact on the objective function, therefore x(T) would have a much stricter constrains and this would cause the decrease of the final state value. Vice versa, if the L reduces, the value of x(T) would be larger
 Therefore, by changing the value of coefficient L we are able to control the X(T) to fall in the interval that we wanted.
 
 We have used lots of methods to solve the problem in the matlab. But finally, only interior point method can match our problem. We write our own function and use interior point method to optimize it. For the problems that need to be solved, we adjusted the parameters and measured multiple sets of data. We reached a detailed conclusion, which will be introduced in detail in our article.
+
+For the probelm 3,4,5, we change different parameters can plot the u and cost function, the change is complex but can get some rule behind it, which can be seen at Figure7,9,10. The answers are at chapter 5,6,7.
 
 %求解问题
 
