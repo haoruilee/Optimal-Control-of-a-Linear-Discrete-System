@@ -108,6 +108,7 @@
 \titlerule*[0.5pc]{$\cdot$}\contentspage}%
 
 \title{\large Optimal Control of a Linear Discrete System}
+
 \author{Dazheng Fang//Haorui li//Yao Yao//Zhiyi Shi }
 
 
@@ -120,21 +121,23 @@
 
 \begin{abstract}
 
-In the real world, many real systems are time-discrete in nature.Even if the system is time-continuous, because the computer is based on such discrete digital technology as time and value, the implementation of computer control must be treated as a discrete system after time discretization.Therefore, it is necessary to discuss the optimal control of discrete time systems.
+In the real world, many real systems are time-discrete in nature.Even if the system is time-continuous, because the computer is based on such discrete digital technology as time and value, the implementation of computer control must be treated as a discrete system after time discrimination.Therefore, it is necessary to discuss the optimal control of discrete time systems.
 
-First of all, We build up the mathematical programming model of the optimal control problem from the conditions of the dynamic equation.
-%通过Lagrange乘子法将等式约束下的极值问题化为无约束的极值问题，使用离散的欧拉方程进行限制，到达下确界。迭代法求出X(T)和C的关系。并使用X(T)的范围求出C的范围。再在C的取值范围中，求得最优解。
-For the problem(2), first,  using the Lagrange undetermined multiplier method change the extremum problems with equality constraints(ECEP) into an unconstrained extremum problem(EP). Second, using discrete Euler-Equations to restrict variables and reach the lower bound. Third, using iteration method to get the relationship of $X(T)$ and C, then figure out their  ranges. Finally, searching in the value range of C to get the optimum point.%%%%%%%%%%%%MATLAB!!!!%%%%%%%
+To build up the optimal problem, first, we define the objective function in chapter-3 which stands for summation of the magnitude square of controls over the entire time horizon.And we want to constrain the x(T) to fall in the predetermined interval, so a penalty function is defined in chapter-4. If the L increases which means the final state x(T) will have a greater impact on the objective function, therefore x(T) would have a much stricter constrains and this would cause the decrease of the final state value. Vice versa, if the L reduces, the value of x(T) would be larger
+Therefore, by changing the value of coefficient L we are able to control the X(T) to fall in the interval that we wanted.
 
-%UNCHANGED!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+We have used lots of methods to solve the problem in the matlab. But finally, only interior point method can match our problem. We write our own function and use interior point method to optimize it. For the problems that need to be solved, we adjusted the parameters and measured multiple sets of data. We reached a detailed conclusion, which will be introduced in detail in our article.
 
+%求解问题
 
-Finally, based on the theory of the traditional VRP (Vehicle Routing Problem), taking the shortest time and lowest risk and low economic losses as the total constraint conditions, considering the road carrying capacity constraints, refuge capacity, garage capacity constraint conditions and so on, according to the category and the landing site of the hurricane, the comprehensive evacuation planning model is established. The processing conditions under the category 1-5 hurricane conditions are simulated, and the shortest time is obtained under the model condition, which is the shortest release time before the hurricane.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \begin{keywords}
-Lagrangian Multiplier Method ; Euler Equations; 
+DLQR; Interior point method;  Dynamic programming; MATLAB; \\\\\\
+Author: Dazheng Fang , Haorui Li, Yao Yao, Zhiyi Shi (Alphabetical order)
 \end{keywords}
+
+
 \end{abstract}
 \maketitle
 %\pagestyle{empty}
@@ -189,9 +192,8 @@ And the six problems are:
 
 
 \subsection{Our Work}
-First, we build up the optimization problem, and then tried
+First of all, we define the objective function and add a penalty function to build up the optimal problem. Then we tried DLQR, simulink, dynamic programming and interior point method to solve the problem. Finally we change the parameters like A, B, and T to track their influences on results.
 
-TO BE DOWN
 
 \section{List of Notation}
 
@@ -216,16 +218,17 @@ $L$     & Penalty weight for x
 
 
 \section{Problem One: Build up the Model}
-From the problem we define the system performance index, in other words, optimization functio J as:
+From the problem we define the system performance index, in other words, optimization function J as:
 %%%%%%%%%要不要加权？%%%%%%%%%%
-$$J=\frac{1}{2}\sum^{T-1}_{k=0}u^T(k)u(k)$$
-
+$$J=\frac{1}{2}\sum^{T-1}_{k=0}u^T(k)u(k)+Lx(T)^Tx(T)$$
+\\  We define the objective function as above. The first term stands for summation of the magnitude square of controls over the entire time horizon which also means the energy consumed by the whole system. However, if we want to constrain the x(T) to fall in the predetermined interval, a penalty function should be defined like the second term. If the L increases which means the final state x(T) will have a greater impact on the objective function, therefore x(T) would have a much stricter constrains and this would cause the decrease of the final state value. Vice versa, if the L reduces, the value of x(T) would be larger.
+Therefore, by changing the value of coefficient L we are able to control the X(T) to fall in the interval that we wanted.\\
 $Notes$ : Now the weight of every step is 1
 
 The problem can be rewriten as:
 \begin{align}
-min & \text{ } J=\frac{1}{2}\sum^{T-1}_{k=0}u^T(k)u(k)\\
-S.t. \text{ }& x(k+1)=A x(k)+B u(k)\\ &  k < T\\& k \in Z^+ \\&x(0)=x_0\\&x(T)\in  [a,b]
+min & \text{ } J=\frac{1}{2}\sum^{T-1}_{k=0}u^T(k)u(k)+Lx^T(T)x(T)\\
+S.t. \text{ }& x(k+1)=A x(k)+B u(k)\\ &  k < T\\& k \in Z^+ \\&x(0)=x_0\\&u(k)\leq U
 \end{align}
 
 
@@ -256,20 +259,20 @@ case of linear plant dynamics also, we have
 
 
 $$\begin{aligned}
-L_{x} &=x^{T} Q \\
-L_{u} &=u^{T} R \\
-f_{x} &=A \\
-f_{u} &=B
+&L_{x} =x^{T} Q \\
+&L_{u} =u^{T} R \\
+&f_{x} =A \\
+&f_{u} =B
 \end{aligned}$$
 
 So we have:
 
 $$\begin{aligned}
-\dot{x} &=A x+B u \\
-x\left(t_{o}\right) &=x_{o} \\
-\dot{\lambda}&=-Q x-A^{T} \lambda & \\
-\lambda\left(t_{f}\right) &=0 \\
-R u+B^{T} \lambda &=0
+&\dot{x} =A x+B u \\
+&x\left(t_{o}\right) =x_{o} \\
+&\dot{\lambda}=-Q x-A^{T} \lambda  \\
+&\lambda\left(t_{f}\right) =0 \\
+&R u+B^{T} \lambda =0
 \end{aligned}$$
 
 Since the systems are clearly linear, we try a connection λ = Px. Inserting this into the η˙
@@ -412,7 +415,7 @@ You can find our source code in Appendix.
 
 Along with Interior Point Method we tried a lot other methods in MATLAB, the program theories are as follows.
 
-\subsubsection{Dynamic Programming(Time limited and not use)}
+\subsubsection{Dynamic Programming}
 The final general characteristic of the dynamic-programming approach is the development of a recursive optimization procedure, which builds to a solution of the overall N-stage problem by first solving a one-stage problem and sequentially including one stage at a time and solving one-stage problems until the overall optimum has been found. This procedure can be based on a backward induction process, where the first stage to be analyzed is the final stage of the problem and problems are solved moving back one stage at a time until all stages are included. Alternatively, the recursive procedure can be based on a forward induction process, where the first stage to be solved is the initial stage of the problem and problems are solved moving forward
 one stage at a time, until all stages are included. In certain problem settings, only one of these induction processes can be applied (e.g., only backward induction is allowed in most problems involving uncertainties).
 
@@ -439,7 +442,7 @@ d_{m} \in D_{m} & (m=0,1, \ldots, n)
 
 The generally cost-to-go function is:
 $$J(f, x(t))=\min _{u(t) \in U}\left\{h(x(\tau))+\int_{t}^{T} g(x(\tau) \cdot u(\tau)) d \tau\right\}$$
-\subsubsection{Use DP to solve DLQR}
+\subsubsection{Use DP to solve DLQR(Time limited and not use)}
 The cost function in DLQR is
 $$J=\sum_{n=0}^{N-1}\left(x_{n}^{T} Q x_{n}+u_{n}^{T} R u_{n}\right)+x_{N} P x_{N}$$
 
@@ -482,7 +485,7 @@ $ P=Q+k^{T} R k+(A-B k)^{T} P(A-B k)$
   return $(u_i)$\;
 \end{algorithm}
 
-\subsubsection{Euler Function(Hard to optimize)}
+\subsubsection{Euler Function(Hard to optimize u)}
 By Lagrange undetermined multiplier method we can get:
 $$\bar J=\sum^{T-1}_{k=0}\{\frac{1}{2}u^T(k)u(k)+\lambda(k+1)[-x(k+1)+Ax(k)+Bu(k)]\}$$
 
@@ -528,7 +531,7 @@ Thus:
 
 So Euler Function constrains u into a small  feasible region and we can solve it by iteration methods.
 
-Unfortunately, we have no time left to program this method, but we think it works.
+Unfortunately, this method cannot set u's limitation, it can only get the globally optimal solution, but we think this method works in optimize the cost function.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -637,7 +640,7 @@ Which defines the function for optimizer. And we will change A for experiment.
 \end{figure}
 
 
-From the screenshots, we can see that the value of controls indeed increased with the growth of A at the beginning. Intuitively, we could see that when A is relatively large, the whole system would need to have a much bigger negative feedback at the beginning in order to constrain the state x(T) at the end to fall in a predetermined interval. After the x(t) is small enough, we only need small controls to adjust the system. If the controls is not big enough at the beginning, the x(t) would grow to a much larger number which may cause even bigger controls. Therefore the objective function will note be able to reach the optimal value.
+From the screenshots, we can see that the value of controls indeed increase with the growth of A at the beginning. Intuitively, we can see that when A is relatively large, the whole system will need to have a much bigger negative feedback at the beginning in order to constrain the state x(T) at the end to fall in a predetermined interval. After the x(t) is small enough, we only need small controls to adjust the system. If the controls are not big enough at the beginning, the x(t) will grow to a much larger number which may cause even bigger controls. Therefore the objective function will be able to reach the optimal value.
 
 \begin{figure}[H]%H为当前位置，!htb为忽略美学标准，htbp为浮动图形
   \centering
@@ -705,6 +708,10 @@ When we change the upper bounds, it can be seen from the screenshots that when t
 
 
 \section{Problem Five: Change  the length of the time horizon: T}
+
+The screenshots show that when the T becomes larger, the value of the objective function will become sharply larger. When the T becomes super large, the values of the last few controls become close to the same value.
+
+
 \begin{figure}[H]
 \centering
 
